@@ -67,3 +67,7 @@ app.add_middleware(
 
 register_routers(app)
 logger.info("Routers registered successfully")
+
+
+if __name__ == "__main__":
+    check_db_connection()
