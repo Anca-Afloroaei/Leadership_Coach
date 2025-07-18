@@ -78,5 +78,3 @@ def check_db_connection():
         raise
 
 
-if __name__ == "__main__":
-    check_db_connection()
