@@ -8,6 +8,7 @@ dependencies = [
     "fastapi>=0.116.1",
     "psycopg2-binary>=2.9.10",
     "pydantic-ai>=0.4.3",
+    "pydantic[email]>=2.11.7",
     "python-dotenv>=1.1.1",
     "sqlmodel>=0.0.24",
     "supabase>=2.17.0",
