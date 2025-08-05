@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 engine = create_engine(
     settings.DATABASE_URL,
     connect_args={"sslmode": "require"},
-    echo=True,
+    echo=False,
     pool_pre_ping=True,
     pool_size=20,
     max_overflow=20,
