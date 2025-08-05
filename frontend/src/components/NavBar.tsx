@@ -16,8 +16,7 @@ export function NavBar() {
       "
         >
             <nav className="flex space-x-4">
-                <Link href="/generate">Generate</Link>
-                <Link href="/gallery">Gallery</Link>
+                <Link href="/questionnaire">Questionnaire</Link>
                 <Link href="/profile">Profile</Link>
                 <Link href="/about">About</Link>
                 <Link href="/support">Support</Link>
