@@ -11,7 +11,6 @@ class User(SQLModel, table=True):
     User model representing a user in the system.
     This model is used to store user information in the database.
     """
-
    
     
     __tablename__ = "users"

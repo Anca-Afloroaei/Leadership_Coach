@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr
 from typing import Optional
 from enum import Enum
 from datetime import datetime
@@ -15,14 +15,15 @@ class Role(str, Enum):
 class UserCreate(BaseModel):
     first_name: str 
     last_name: str 
-    email: str 
-    hashed_password: str 
+    email: EmailStr 
+    password: str 
     role: Role 
     industry: str 
     years_experience: int 
 
 
 class UserRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id: str
     first_name: str 
     last_name: str 
@@ -33,16 +34,22 @@ class UserRead(BaseModel):
     created_at: datetime
     updated_at: datetime 
 
-    class Config:
-        orm_mode = True
-
 
 class UserUpdate(BaseModel):
+    current_password: str
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     email: Optional[EmailStr] = None
     role: Optional[Role] = None
     industry: Optional[str] = None
     years_experience: Optional[int] = None
+    password: Optional[str] = None
 
 
+class UserDelete(BaseModel):
+    password: str
+    
+
+class UserLogin(BaseModel):
+    password: str
+    email: EmailStr
