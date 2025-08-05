@@ -6,6 +6,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from database.core import create_db_and_tables, get_session, check_db_connection
 from routers import register_routers
+from entities import (
+    User,
+    LeadershipModule,
+    UserModuleProgress,
+    DevelopmentPlan,
+    LeadershipAssessment,
+    Question,
+    Answer, 
+    Questionnaire
+)
 
 
 load_dotenv()
