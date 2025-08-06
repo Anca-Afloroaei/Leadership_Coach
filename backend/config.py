@@ -8,6 +8,11 @@ class Settings(BaseSettings):
     DATABASE_URL: str
     SUPABASE_URL: str
     OPENAI_API_KEY: str
+
+    JWT_SECRET: str
+    JWT_ALGORITHM: str 
+    ACCESS_TOKEN_EXPIRE_MINUTES: int 
+    ENVIRONMENT: str = "development"
     
     
 
