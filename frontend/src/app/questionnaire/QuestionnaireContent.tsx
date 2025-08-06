@@ -6,6 +6,7 @@ import { fetchQuestionnaireWithDetails } from '@/lib/api/questionnaire';
 import { InstructionCard } from '@/components/questionnaire/InstructionCard';
 import { QuestionCard } from '@/components/questionnaire/QuestionCard';
 import { SubmissionCard } from '@/components/questionnaire/SubmissionCard';
+import { Progress } from '@/components/ui/progress';
 import { Loader2 } from 'lucide-react';
 
 interface QuestionnaireContentProps {
@@ -103,17 +104,13 @@ export function QuestionnaireContent({ questionnaireId }: QuestionnaireContentPr
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <div className="w-full max-w-4xl">
-        {/* Progress indicator */}
+      <div className="w-full max-w-2xl">
+        {/* Progress indicator - same max width as cards */}
         <div className="mb-8">
-          <div className="h-2 bg-muted rounded-full overflow-hidden">
-            <div
-              className="h-full bg-primary transition-all duration-300"
-              style={{
-                width: `${(currentIndex / (questions.length + 1)) * 100}%`,
-              }}
-            />
-          </div>
+          <Progress 
+            value={(currentIndex / (questions.length + 1)) * 100} 
+            className="h-2"
+          />
         </div>
 
         {/* Card container with animation */}
