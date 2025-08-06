@@ -27,7 +27,7 @@ class UserModuleProgress(SQLModel, table=True):
         default_factory=lambda: datetime.now(timezone.utc),
         sa_column=Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False),
     )
-    completed_at: datetime = Field(
+    completed_at: Optional[datetime] = Field(
         default=None,
         sa_column=Column(DateTime(timezone=True), default=None, nullable=True),
     )  # Optional completion date if the module is completed
