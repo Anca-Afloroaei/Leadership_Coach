@@ -8,6 +8,7 @@ from features.questionnaires.controller import router as questionnaires_router
 from features.answers.controller import router as answers_router
 from features.questions.controller import router as questions_router
 from features.question_and_answers.controller import router as question_and_answers_router
+from features.auth.controller import router as auth_router
 
 
 def register_routers(app: FastAPI):
@@ -24,3 +25,4 @@ def register_routers(app: FastAPI):
     app.include_router(questions_router)
     app.include_router(question_and_answers_router)
     app.include_router(questionnaires_router)
+    app.include_router(auth_router)
