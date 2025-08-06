@@ -31,11 +31,7 @@ class UserModuleProgress(SQLModel, table=True):
         default=None,
         sa_column=Column(DateTime(timezone=True), default=None, nullable=True),
     )  # Optional completion date if the module is completed
-
-
-
-    
     updated_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc),
-        sa_column=Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=datetime.now, nullable=False),
+        sa_column=Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc), nullable=False),
     )  # Last updated timestamp
