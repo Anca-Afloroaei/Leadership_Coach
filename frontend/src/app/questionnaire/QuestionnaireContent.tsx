@@ -74,7 +74,7 @@ export function QuestionnaireContent({ questionnaireId }: QuestionnaireContentPr
   if (!questionnaire || questions.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
-        <p className="text-muted-foreground">No questionnaire data available</p>
+        <p className="text-muted-foreground">Loading questionnaire data...</p>
       </div>
     );
   }
