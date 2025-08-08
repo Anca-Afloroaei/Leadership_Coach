@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SessionProvider } from "@/contexts/SessionContext"
 import { NavBar } from "@/components/NavBar";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
@@ -26,7 +27,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    // <html lang="en">
+    <html lang="en" suppressHydrationWarning className="">
+
       <body>
       <ThemeProvider 
       attribute="class" 
@@ -34,6 +37,7 @@ export default function RootLayout({
       enableSystem
       disableTransitionOnChange
       >
+      <SessionProvider>
         {/* <style jsx global>{`
           :root {
             --font-geist-sans: ${geistSans.style.fontFamily};
@@ -42,6 +46,7 @@ export default function RootLayout({
         `}</style> */}
         <NavBar />
         <main>{children}</main>
+      </SessionProvider>
       </ThemeProvider>
       </body>
     </html>
