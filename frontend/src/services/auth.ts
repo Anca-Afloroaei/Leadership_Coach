@@ -30,7 +30,7 @@ export async function apiLogin(
 }
 
 export async function fetchProfile(): Promise<User> {
-  const resp = await API.get<User>("/users/me");
+  const resp = await API.get<User>("/users/user");
   return resp.data;
 }
 
@@ -53,7 +53,7 @@ export async function apiUpdateProfile(
     password: string;
   }>
 ): Promise<User> {
-  const resp = await API.patch<User>("/users/me", payload);
+  const resp = await API.patch<User>("/users/user", payload);
   return resp.data;
 }
 
@@ -62,10 +62,10 @@ export async function apiLogout(): Promise<void> {
 }
 
 export async function apiDeleteAccount(password: string): Promise<void> {
-  // FastAPI DELETE /users/me, body: { password }
+  // FastAPI DELETE /users/user, body: { password }
   await API.request({
     method: "DELETE",
-    url: "/users/me",
+    url: "/users/user",
     data: { password },
   });
 }
