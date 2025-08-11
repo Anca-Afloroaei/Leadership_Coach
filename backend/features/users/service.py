@@ -8,66 +8,70 @@ from utils.security import get_password_hash, verify_password
 
 logger = logging.getLogger(__name__)
 
-def create_user(user: UserCreate, session: Session) -> UserRead:
-    """
-    Create a new user in the system.
-    Raises:
-        HTTPException(400): If a user with the same email already exists
-    """
-    # Check if user with this email already exists
-    existing_user = session.exec(
-        select(User).where(User.email == user.email)
-    ).first()
+# def create_user(user: UserCreate, session: Session) -> UserRead:
+#     """
+#     Create a new user in the system.
+#     Raises:
+#         HTTPException(400): If a user with the same email already exists
+#     """
+#     # Check if user with this email already exists
+#     existing_user = session.exec(
+#         select(User).where(User.email == user.email)
+#     ).first()
     
-    if existing_user:
-        raise HTTPException(
-            status_code=400,
-            detail=f"User with email {user.email} already exists"
-        )
+#     if existing_user:
+#         raise HTTPException(
+#             status_code=400,
+#             detail=f"User with email {user.email} already exists"
+#         )
 
-    try:
-        user = User(
-            first_name=user.first_name,
-            last_name=user.last_name,
-            email=user.email,
-            hashed_password=get_password_hash(user.password),
-            role=user.role,
-            industry=user.industry,
-            years_experience=user.years_experience
-        )
-        session.add(user)
-        session.commit()
-        session.refresh(user)
-        logger.info(f"User created: {user}")
-        return UserRead.model_validate(user)
+#     try:
+#         user = User(
+#             first_name=user.first_name,
+#             last_name=user.last_name,
+#             email=user.email,
+#             hashed_password=get_password_hash(user.password),
+#             role=user.role,
+#             industry=user.industry,
+#             years_experience=user.years_experience
+#         )
+#         session.add(user)
+#         session.commit()
+#         session.refresh(user)
+#         logger.info(f"User created: {user}")
+#         return UserRead.model_validate(user)
         
-    except IntegrityError as e:
-        session.rollback()
-        logger.error(f"Failed to create user: {e}")
-        raise HTTPException(
-            status_code=400,
-            detail="Failed to create user. The email address might already be in use."
-        ) from e
+#     except IntegrityError as e:
+#         session.rollback()
+#         logger.error(f"Failed to create user: {e}")
+#         raise HTTPException(
+#             status_code=400,
+#             detail="Failed to create user. The email address might already be in use."
+#         ) from e
 
 
-def auth_user(login_credentials: UserLogin, session: Session) -> UserRead:
-    """
-    Retrieve a user by their login details.
-    Raises:
-        HTTPException(401): If the user is invalid
-    """
-    email = login_credentials.email
-    password = login_credentials.password
+# def auth_user(login_credentials: UserLogin, session: Session) -> UserRead:
+#     """
+#     Retrieve a user by their login details.
+#     Raises:
+#         HTTPException(401): If the user is invalid
+#     """
+#     email = login_credentials.email
+#     password = login_credentials.password
     
-    user = session.exec(select(User).where(User.email == email)).first()
+#     user = session.exec(select(User).where(User.email == email)).first()
     
-    if not user or not verify_password(password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invaild credentials"
-        )
-    logger.info(f"User {user.id} authenticated successfully")
-    return UserRead.model_validate(user)
+#     if not user or not verify_password(password, user.hashed_password):
+#         raise HTTPException(
+#             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invaild credentials"
+#         )
+#     logger.info(f"User {user.id} authenticated successfully")
+#     return UserRead.model_validate(user)
 
+
+def read_current_user(current_user: User) -> User:
+    return current_user
+    
 
 
 def update_user(user_update: UserUpdate, current_user: User, session: Session) -> UserRead:

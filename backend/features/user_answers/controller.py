@@ -13,6 +13,7 @@ from .service import (
     # get_user_answers_by_user as service_get_user_answers_by_user,
     delete_user_answer as service_delete_user_answer
 )
+from features.auth.service import get_current_user
 
 
 logger = logging.getLogger(__name__)
@@ -22,33 +23,38 @@ router = APIRouter(prefix="/user_answers", tags=["user_answers"])
 
 @router.post("/", response_model=UserAnswerRead, summary="Create User Answer")
 def create_user_answers_record(
-    answer: UserAnswerCreate, session: Session = Depends(get_session)
+    answer: UserAnswerCreate, 
+    current_user: User=Depends(get_current_user),
+    session: Session = Depends(get_session)
 ) -> UserAnswerRead:
     """
     Create a new user answer record in the system.
     """
-    return service_create_user_answer(answer, session)
+    return service_create_user_answer(answer, current_user, session)
 
 
 @router.get("/{answers_record_id}", response_model=UserAnswerRead, summary="Get User Answer by ID")
 def get_user_answers_by_record_id(
-    answers_record_id: str, session: Session = Depends(get_session)
+    answers_record_id: str, 
+    current_user: User=Depends(get_current_user),
+    session: Session = Depends(get_session)
 ) -> UserAnswerRead:
     """
     Retrieve a user answers record by its ID.
     """
-    return service_get_user_answers_by_record_id(answers_record_id, session)
+    return service_get_user_answers_by_record_id(answers_record_id, current_user, session)
 
 
 @router.patch("/", response_model=UserAnswerRead, summary="Update User Answers")
 def update_user_answers_record(
     update_data: UserAnswerUpdate,
+    current_user: User=Depends(get_current_user),
     session: Session = Depends(get_session),
 ) -> UserAnswerRead:
     """
     Update an existing user answers record.
     """
-    return service_update_user_answer(update_data, session)
+    return service_update_user_answer(update_data, current_user, session)
 
 
 # @router.get("/questionnaire/{questionnaire_id}", response_model=list[UserAnswerRead], summary="Get User Answers by Questionnaire")
@@ -63,12 +69,12 @@ def update_user_answers_record(
 
 @router.delete("/{answers_record_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Delete User Answer")
 def delete_user_answers_record(
-    answers_record_id: str, session: Session = Depends(get_session)
+    answers_record_id: str, current_user: User=Depends(get_current_user), session: Session = Depends(get_session)
 ) -> None:
     """
     Delete a user answers record by its ID.
     """
-    return service_delete_user_answer(answers_record_id, session)
+    return service_delete_user_answer(answers_record_id, current_user, session)
 
 
 
