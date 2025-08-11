@@ -12,3 +12,11 @@ export interface User {
   created_at: Date
   updated_at: Date 
 }
+
+
+export interface SignupResponse {
+  user: User
+  access_token: string
+  token_type: string
+}
+    
