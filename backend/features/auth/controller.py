@@ -12,14 +12,14 @@ All endpoints follow RESTful conventions and use HTTP-only cookies for
 secure token storage, preventing XSS attacks while maintaining usability.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session
 from config import settings
 from database.core import get_session
 from entities import User
-from ..users.models import UserCreate, UserRead
+from ..users.models import UserCreate
 from .service import (
     create_user_account,
     authenticate_user,
@@ -27,7 +27,11 @@ from .service import (
     refresh_user_session,
     get_current_user,
     validate_session_status,
+    get_token_from_cookie_or_header
 )
+
+
+router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 def _set_auth_cookie(response: JSONResponse, token: str) -> None:
@@ -56,9 +60,6 @@ def _create_auth_response(content: dict, token: str) -> JSONResponse:
     return response
 
 
-router = APIRouter(prefix="/auth", tags=["auth"])
-
-
 @router.post("/signup")
 def signup(
     user_in: UserCreate,
@@ -69,12 +70,12 @@ def signup(
     This endpoint creates a new user account and immediately generates
     a session token for the user, allowing them to be logged in right after registration.
     """
-    user = create_user_account(user_in, session)
-    access_token = create_session_token(user.id)
+    user_read = create_user_account(user_in, session)  # returns UserRead
+    access_token = create_session_token(user_read.id)
 
     return _create_auth_response(
         content={
-            "user": UserRead.model_validate(user).model_dump(mode="json"),
+            "user": user_read.model_dump(mode="json"),
             "message": "Account created successfully",
         },
         token=access_token,
@@ -136,11 +137,11 @@ def logout():
 
 @router.get("/session-status")
 def get_session_status(
-    current_user: User = Depends(get_current_user),
+    token: str = Depends(get_token_from_cookie_or_header),
 ):
     """
     Validate the current user's session status.
     Used by frontend to check if the user is still logged in
     and to manage session timers.
     """
-    return validate_session_status(current_user.id)
+    return validate_session_status(token)
