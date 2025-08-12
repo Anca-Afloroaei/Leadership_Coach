@@ -7,5 +7,16 @@
   "python.terminal.activateEnvironment": false,
   "python.analysis.diagnosticSeverityOverrides": {
 
-  }
+  },
+
+  "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+  "editor.formatOnSave": true,
+
+  // Set Black line length here
+  "black-formatter.args": ["--line-length", "79"]
+
 }
+
+
