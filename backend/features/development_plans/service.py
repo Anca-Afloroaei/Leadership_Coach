@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 # def create_assessment(assessment: DevelopmentPlanCreate, session: Session, current_user: User) -> DevelopmentPlanRead:
 def create_development_plan(development_plan: DevelopmentPlanCreate, session: Session) -> DevelopmentPlanRead:
     """
-    Create a new Development Plan in the system.
+    Create a new Development Plan in the database.
     """
     new_development_plan = DevelopmentPlan(
         user_id=development_plan.user_id,
