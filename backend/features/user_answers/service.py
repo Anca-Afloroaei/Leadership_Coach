@@ -1,0 +1,133 @@
+import logging
+from fastapi import HTTPException, status
+from sqlmodel import Session, select
+from sqlalchemy.exc import IntegrityError
+from entities.users import User
+from entities.user_answers import UserAnswer
+from .models import (
+    UserAnswersRecordCreate,
+    UserAnswersRecordRead,
+    UserAnswersRecordUpdate,
+)
+
+
+logger = logging.getLogger(__name__)
+
+
+def create_user_answers_record(
+    user_answers_record: UserAnswersRecordCreate,
+    current_user: User,
+    session: Session,
+) -> UserAnswersRecordRead:
+    """
+    Create a new User Answers Record in the database.
+    """
+    if user_answers_record.user_id != current_user.id:
+        logger.error(
+            f"User Answers Record with ID {user_answers_record.user_id} does not match Current User ID"
+        )
+        raise HTTPException(status_code=401, detail="Unauthorized Access")
+    new_record = UserAnswer(
+        user_id=user_answers_record.user_id,
+        questionnaire_id=user_answers_record.questionnaire_id,
+        answers=user_answers_record.answers,
+    )
+    session.add(new_record)
+    session.commit()
+    session.refresh(new_record)
+    logger.info(f"User Answers Record: {new_record.id}")
+    return new_record
+
+
+def get_user_answers_by_record_id(
+    user_answers_record_id: str, current_user: User, session: Session
+) -> UserAnswersRecordRead:
+    """
+    Retrieve a User Answers Record by its ID.
+    """
+    statement = select(UserAnswer).where(
+        UserAnswer.id == user_answers_record_id
+    )
+    user_answers_record = session.exec(statement).first()
+    if not user_answers_record:
+        logger.error(
+            f"User Answers Record with ID {user_answers_record_id} not found"
+        )
+        raise HTTPException(
+            status_code=404, detail="User Answers Record not found"
+        )
+    if user_answers_record.user_id != current_user.id:
+        logger.error(
+            f"User Answers Record with ID {user_answers_record.id} does not match Current User ID"
+        )
+        raise HTTPException(status_code=401, detail="Unauthorized Access")
+
+    logger.info(f"User Answers Record retrieved: {user_answers_record.id}")
+    return UserAnswersRecordRead.model_validate(
+        user_answers_record
+    )  # Assuming UserAnswersRecordRead has a model_validate method to convert the model
+
+
+def update_user_answers_record(
+    user_answer_update: UserAnswersRecordUpdate,
+    current_user: User,
+    session: Session,
+) -> UserAnswersRecordRead:
+    """
+    Update an existing User Answers Record's information.
+    """
+    statement = select(UserAnswer).where(
+        UserAnswer.id == user_answer_update.id
+    )
+    user_answers_record = session.exec(statement).first()
+    if not user_answers_record:
+        logger.error(
+            f"User Answers Record with ID {user_answer_update.id} not found"
+        )
+        raise HTTPException(
+            status_code=404, detail="User Answers Record not found"
+        )
+    if user_answers_record.user_id != current_user.id:
+        logger.error(
+            f"User Answers Record with ID {user_answers_record.id} does not match Current User ID"
+        )
+        raise HTTPException(status_code=401, detail="Unauthorized Access")
+
+    for key, value in user_answer_update.model_dump().items():
+        setattr(user_answers_record, key, value)
+
+    session.add(user_answers_record)
+    session.commit()
+    session.refresh(user_answers_record)
+    logger.info(f"User Answers Record updated: {user_answers_record.id}")
+    return UserAnswersRecordRead.model_validate(user_answers_record)
+
+
+def delete_user_answers_record(
+    user_answers_record_id: str, current_user: User, session: Session
+) -> None:
+    """
+    Delete a User Answers Record by its ID.
+    """
+    statement = select(UserAnswer).where(
+        UserAnswer.id == user_answers_record_id
+    )
+    user_answers_record = session.exec(statement).first()
+    if not user_answers_record:
+        logger.error(
+            f"User Answers Record with ID {user_answers_record_id} not found"
+        )
+        raise HTTPException(
+            status_code=404, detail="User Answers Record not found"
+        )
+    if user_answers_record.user_id != current_user.id:
+        logger.error(
+            f"User Answers Record with ID {user_answers_record.id} does not match Current User ID"
+        )
+        raise HTTPException(status_code=401, detail="Unauthorized Access")
+    session.delete(user_answers_record)
+    session.commit()
+    logger.info(
+        f"User Answers Record with ID {user_answers_record_id} deleted successfully"
+    )
+    return None

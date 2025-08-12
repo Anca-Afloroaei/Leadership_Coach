@@ -4,13 +4,13 @@ from datetime import datetime
 
 
 
-class UserAnswerCreate(BaseModel):
+class UserAnswersRecordCreate(BaseModel):
     user_id: str
     questionnaire_id: str
     answers: list[str]  # List of answers provided by the user
 
 
-class UserAnswerRead(BaseModel):
+class UserAnswersRecordRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: str
     user_id: str
@@ -21,7 +21,8 @@ class UserAnswerRead(BaseModel):
     completed_at: Optional[datetime] = None  # Optional completion date if the questionnaire is completed
 
 
-class UserAnswerUpdate(BaseModel):
+class UserAnswersRecordUpdate(BaseModel):
+    id: str
     answers: Optional[list[str]] = None  # List of answers provided by the user
     completed_at: Optional[datetime] = None  # Optional completion date if the questionnaire is completed
 

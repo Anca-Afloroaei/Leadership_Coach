@@ -5,7 +5,6 @@ from datetime import datetime, timezone
 from uuid import uuid4
 from typing import Optional
 from entities import User, Questionnaire
-# from entities.questionnaire import Questionnaire
 
 
 
@@ -20,10 +19,10 @@ class UserAnswer(SQLModel, table=True):
     __tablename__ = "user_answers"
     id: str = Field(default_factory=lambda: uuid4().hex, primary_key=True, index=True)
     user_id: str = Field(
-        sa_column=Column(String, ForeignKey("users.id"), nullable=False)
+        sa_column=Column(ForeignKey("users.id"), nullable=False)
     )  # The ID of the user who answered the questionnaire
     questionnaire_id: str = Field(
-        sa_column=Column(String, ForeignKey("questionnaire.id"), nullable=False)
+        sa_column=Column(ForeignKey("questionnaires.id"), nullable=False)
     )  # The ID of the questionnaire being answered
     answers: list[str] = Field(
         sa_column=Column(ARRAY(String), nullable=False)
