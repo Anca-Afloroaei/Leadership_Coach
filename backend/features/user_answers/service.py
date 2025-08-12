@@ -75,6 +75,10 @@ def update_user_answers_record(
 ) -> UserAnswersRecordRead:
     """
     Update an existing User Answers Record's information.
+
+    Supports partial updates to the answers JSONB field, which is a mapping of question IDs to answer IDs.
+    Merges new answers with existing ones to avoid overwriting unrelated keys.
+    Rejects updates if the record is already completed (completed_at is not None).
     """
     statement = select(UserAnswer).where(
         UserAnswer.id == user_answer_update.id
@@ -92,8 +96,23 @@ def update_user_answers_record(
             f"User Answers Record with ID {user_answers_record.id} does not match Current User ID"
         )
         raise HTTPException(status_code=401, detail="Unauthorized Access")
+    if user_answers_record.completed_at is not None:
+        logger.error(
+            f"User Answers Record with ID {user_answers_record.id} is already completed and cannot be updated"
+        )
+        raise HTTPException(
+            status_code=400, detail="Cannot update a completed User Answers Record"
+        )
 
-    for key, value in user_answer_update.model_dump().items():
+    update_data = user_answer_update.model_dump(exclude_unset=True)
+    if "answers" in update_data and update_data["answers"] is not None:
+        existing_answers = user_answers_record.answers or {}
+        # Merge existing answers with new answers
+        merged_answers = {**existing_answers, **update_data["answers"]}
+        user_answers_record.answers = merged_answers
+        update_data.pop("answers")
+
+    for key, value in update_data.items():
         setattr(user_answers_record, key, value)
 
     session.add(user_answers_record)

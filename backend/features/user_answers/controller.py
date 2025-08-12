@@ -37,6 +37,8 @@ def create_user_answers_record(
 ) -> UserAnswersRecordRead:
     """
     Create a new user answer record in the system.
+
+    The `answer` parameter should be a dictionary mapping question IDs (str) to answer IDs (str).
     """
     return service_create_user_answers_record(answer, current_user, session)
 
@@ -71,6 +73,9 @@ def update_user_answers_record(
 ) -> UserAnswersRecordRead:
     """
     Update an existing user answers record.
+
+    Partial updates can specify a dictionary mapping question IDs to answer IDs,
+    allowing updates to specific answers without overwriting the entire set.
     """
     return service_update_user_answers_record(
         update_data, current_user, session

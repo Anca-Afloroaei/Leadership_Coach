@@ -1,11 +1,9 @@
 from sqlmodel import Field, SQLModel
 from sqlalchemy import Boolean, Column, ForeignKey, String, DateTime
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.dialects.postgresql import JSONB
 from datetime import datetime, timezone
 from uuid import uuid4
 from typing import Optional
-from entities import User, Questionnaire
-
 
 
 class UserAnswer(SQLModel, table=True):
@@ -24,8 +22,8 @@ class UserAnswer(SQLModel, table=True):
     questionnaire_id: str = Field(
         sa_column=Column(ForeignKey("questionnaires.id"), nullable=False)
     )  # The ID of the questionnaire being answered
-    answers: list[str] = Field(
-        sa_column=Column(ARRAY(String), nullable=False)
+    answers: dict[str, str] = Field(
+        sa_column=Column(JSONB, nullable=False, default=dict)
     )  # List of answers provided by the user
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc),

@@ -14,7 +14,8 @@ from entities import (
     LeadershipAssessment,
     Question,
     Answer, 
-    Questionnaire
+    Questionnaire,
+    UserAnswer,
 )
 
 

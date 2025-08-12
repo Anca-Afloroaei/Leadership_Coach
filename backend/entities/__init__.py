@@ -6,3 +6,4 @@ from .users import User
 from .questions import Question
 from .answers import Answer
 from .questionnaires import Questionnaire
+from .user_answers import UserAnswer
