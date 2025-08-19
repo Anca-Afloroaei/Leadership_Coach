@@ -59,23 +59,3 @@ export async function fetchQuestionnaireWithDetails(questionnaireId: string) {
     questions: questionsWithAnswers
   };
 }
-
-// Submit questionnaire responses (placeholder - endpoint doesn't exist yet)
-export async function submitQuestionnaireResponses(data: {
-  questionnaire_id: string;
-  responses: { question_id: string; answer_id: string; score_value: number }[];
-}) {
-  const response = await fetch(`${API_BASE_URL}/questionnaire-responses`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-  
-  if (!response.ok) {
-    throw new Error(`Failed to submit responses: ${response.statusText}`);
-  }
-  
-  return response.json();
-}

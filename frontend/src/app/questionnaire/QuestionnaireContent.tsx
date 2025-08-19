@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useQuestionnaire } from '@/contexts/QuestionnaireContext';
 import { fetchQuestionnaireWithDetails } from '@/lib/api/questionnaire';
+import { fetchRecentUserAnswers } from '@/lib/api/user_answers';
 import { InstructionCard } from '@/components/questionnaire/InstructionCard';
 import { QuestionCard } from '@/components/questionnaire/QuestionCard';
 import { SubmissionCard } from '@/components/questionnaire/SubmissionCard';
@@ -12,6 +13,7 @@ import { Loader2 } from 'lucide-react';
 interface QuestionnaireContentProps {
   questionnaireId: string;
 }
+
 
 export function QuestionnaireContent({ questionnaireId }: QuestionnaireContentProps) {
   const {
@@ -24,6 +26,10 @@ export function QuestionnaireContent({ questionnaireId }: QuestionnaireContentPr
     setQuestions,
     setIsLoading,
     setError,
+    userAnswersId,
+    setUserAnswersId,
+  hydrateAnswers,
+  goToIndex,
   } = useQuestionnaire();
 
   useEffect(() => {
@@ -35,6 +41,29 @@ export function QuestionnaireContent({ questionnaireId }: QuestionnaireContentPr
         const data = await fetchQuestionnaireWithDetails(questionnaireId);
         setQuestionnaire(data.questionnaire);
         setQuestions(data.questions);
+        // Try to resume: fetch recent in-progress user_answers (within 7 days)
+        const recent = await fetchRecentUserAnswers({ questionnaire_id: questionnaireId, days: 7 });
+        if (recent && recent.id && !recent.completed_at) {
+          // Set the existing userAnswersId
+          setUserAnswersId(recent.id);
+          // Load existing answers into local state
+          if (recent.answers && typeof recent.answers === 'object') {
+      hydrateAnswers(recent.answers);
+          }
+          // Jump to first unanswered question (skip Instruction)
+          try {
+            const answeredSet = new Set(Object.keys(recent.answers || {}));
+            const firstUnansweredIdx = data.questions.findIndex(q => !answeredSet.has(q.id));
+            const desiredIndex = (firstUnansweredIdx === -1)
+              ? (data.questions.length + 1) // submission card if all answered
+              : (firstUnansweredIdx + 1);    // +1 to account for Instruction card at 0
+            // Defer until questions state is applied inside context
+            setTimeout(() => goToIndex(desiredIndex), 0);
+          } catch {}
+        } else {
+          // No recent in-progress record; leave userAnswersId null so InstructionCard creates new when starting.
+        }
+
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load questionnaire');
       } finally {
@@ -43,7 +72,7 @@ export function QuestionnaireContent({ questionnaireId }: QuestionnaireContentPr
     };
 
     loadQuestionnaire();
-  }, [questionnaireId, setQuestionnaire, setQuestions, setIsLoading, setError]);
+  }, [questionnaireId, setQuestionnaire, setQuestions, setIsLoading, setError, userAnswersId, setUserAnswersId]);
 
   if (isLoading) {
     return (

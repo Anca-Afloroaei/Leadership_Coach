@@ -14,7 +14,7 @@ interface QuestionCardProps {
 }
 
 export function QuestionCard({ question, answers, questionNumber, totalQuestions }: QuestionCardProps) {
-  const { goToNext, goToPrevious, recordResponse, getResponseForQuestion } = useQuestionnaire();
+  const { goToNext, goToPrevious, saveAnswer, getResponseForQuestion } = useQuestionnaire();
   const [selectedAnswer, setSelectedAnswer] = useState<string>("");
   
   // Get existing response if user navigated back
@@ -27,16 +27,15 @@ export function QuestionCard({ question, answers, questionNumber, totalQuestions
 
   const handleAnswerSelect = (answerId: string) => {
     setSelectedAnswer(answerId);
-    const answer = answers.find(a => a.id === answerId);
-    if (answer) {
-      recordResponse(question.id, answerId, answer.score_value);
-    }
+    saveAnswer(question.id, answerId);
   };
 
   const handleNext = () => {
-    if (selectedAnswer) {
-      goToNext();
-    }
+  if (!selectedAnswer) return;
+  // Ensure backend is patched every time user moves forward
+  // Use flush to bypass debounce when navigating
+  saveAnswer(question.id, selectedAnswer, { flush: true });
+  goToNext();
   };
 
   return (

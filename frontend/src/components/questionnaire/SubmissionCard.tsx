@@ -1,13 +1,13 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useQuestionnaire } from "@/contexts/QuestionnaireContext";
-import { submitQuestionnaireResponses } from "@/lib/api/questionnaire";
+import { updateUserAnswers } from "@/lib/api/user_answers";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle } from "lucide-react";
 
 export function SubmissionCard() {
-  const { questionnaire, questions, userResponses, goToPrevious } = useQuestionnaire();
+  const { questionnaire, questions, userResponses, goToPrevious, userAnswersId } = useQuestionnaire();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -24,10 +24,12 @@ export function SubmissionCard() {
     setError(null);
 
     try {
-      await submitQuestionnaireResponses({
-        questionnaire_id: questionnaire.id,
-        responses: userResponses,
-      });
+      if (!userAnswersId) {
+        setError('Could not find your assessment session. Please go back and start the assessment again.');
+        setIsSubmitting(false);
+        return;
+      }
+      await updateUserAnswers({ id: userAnswersId, completed_at: new Date().toISOString() });
       
       // Navigate to a success page or dashboard
       router.push('/thank-you');
@@ -93,7 +95,7 @@ export function SubmissionCard() {
         </Button>
         <Button 
           onClick={handleSubmit}
-          disabled={!isComplete || isSubmitting}
+          disabled={!isComplete || isSubmitting || !userAnswersId}
           size="lg"
         >
           {isSubmitting ? 'Submitting...' : 'Submit Assessment'}
