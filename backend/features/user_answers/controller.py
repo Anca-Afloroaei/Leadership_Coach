@@ -13,6 +13,7 @@ from .service import (
     create_user_answers_record as service_create_user_answers_record,
     get_user_answers_by_record_id as service_get_user_answers_by_record_id,
     update_user_answers_record as service_update_user_answers_record,
+    get_recent_user_answers as service_get_recent_user_answers,
     # get_user_answers_by_questionnaire as service_get_user_answers_by_questionnaire,
     # get_user_answers_by_user as service_get_user_answers_by_user,
     delete_user_answers_record as service_delete_user_answers_record,
@@ -79,6 +80,22 @@ def update_user_answers_record(
     """
     return service_update_user_answers_record(
         update_data, current_user, session
+    )
+
+
+@router.get(
+    "/recent/{questionnaire_id}",
+    response_model=UserAnswersRecordRead,
+    summary="Get recent in-progress User Answers for a questionnaire",
+)
+def get_recent_user_answers(
+    questionnaire_id: str,
+    days: int = 7,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+) -> UserAnswersRecordRead:
+    return service_get_recent_user_answers(
+        questionnaire_id, days, current_user, session
     )
 
 

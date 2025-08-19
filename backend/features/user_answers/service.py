@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException, status
 from sqlmodel import Session, select
 from sqlalchemy.exc import IntegrityError
@@ -150,3 +151,29 @@ def delete_user_answers_record(
         f"User Answers Record with ID {user_answers_record_id} deleted successfully"
     )
     return None
+
+
+def get_recent_user_answers(
+    questionnaire_id: str,
+    days: int,
+    current_user: User,
+    session: Session,
+) -> UserAnswersRecordRead:
+    """
+    Fetch the most recent User Answers Record for the given questionnaire within the last `days` days.
+    Returns 404 if none exist within the window.
+    """
+    window_start = datetime.now(timezone.utc) - timedelta(days=days)
+    stmt = (
+        select(UserAnswer)
+        .where(
+            (UserAnswer.user_id == current_user.id)
+            & (UserAnswer.questionnaire_id == questionnaire_id)
+            & (UserAnswer.created_at >= window_start)
+        )
+        .order_by(UserAnswer.created_at.desc())
+    )
+    record = session.exec(stmt).first()
+    if not record:
+        raise HTTPException(status_code=404, detail="No recent user answers found")
+    return UserAnswersRecordRead.model_validate(record)
