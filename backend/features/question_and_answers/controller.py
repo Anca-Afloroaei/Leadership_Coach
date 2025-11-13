@@ -1,9 +1,13 @@
 from fastapi import APIRouter, Depends
 from sqlmodel import Session
-from .models import QuestionWithAnswersCreate, QuestionWithAnswersRead
-from .service import create_question_with_answers, create_question_with_answers_list
+
 from database.core import get_session
 
+from .models import QuestionWithAnswersCreate, QuestionWithAnswersRead
+from .service import (
+    create_question_with_answers,
+    create_question_with_answers_list,
+)
 
 router = APIRouter(prefix="/question_with_answers", tags=["question_with_answers"])
 

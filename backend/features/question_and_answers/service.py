@@ -1,7 +1,10 @@
 import logging
+
 from sqlmodel import Session
-from entities.questions import Question
+
 from entities.answers import Answer
+from entities.questions import Question
+
 from .models import QuestionWithAnswersCreate, QuestionWithAnswersRead
 
 logger = logging.getLogger(__name__)

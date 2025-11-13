@@ -1,5 +1,6 @@
-from pydantic import BaseModel
 from typing import List
+
+from pydantic import BaseModel
 
 
 class AnswerCreateNested(BaseModel):
@@ -12,6 +13,7 @@ class QuestionWithAnswersCreate(BaseModel):
     answers: List[AnswerCreateNested]
 
 from typing import Optional
+
 
 class QuestionWithAnswersRead(BaseModel):
     question_id: str
