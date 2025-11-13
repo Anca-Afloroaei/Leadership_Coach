@@ -1,16 +1,18 @@
 import logging
+
 from fastapi import APIRouter, Depends, status
 from sqlmodel import Session
+
 from database.core import get_session
-from entities.users import User
 from entities.user_module_progress import UserModuleProgress
+from entities.users import User
+
 from .models import UserModuleProgressCreate, UserModuleProgressRead
 from .service import (
     create_user_module_progress as service_create_user_module_progress,
+    delete_user_module_progress as service_delete_user_module_progress,
     get_user_module_progress_by_id as service_get_user_module_progress_by_id,
-    delete_user_module_progress as service_delete_user_module_progress
 )
-
 
 logger = logging.getLogger(__name__)
 

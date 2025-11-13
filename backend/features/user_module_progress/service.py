@@ -1,11 +1,13 @@
 import logging
+
 from fastapi import HTTPException
-from sqlmodel import Session, select
 from sqlalchemy.exc import IntegrityError
+from sqlmodel import Session, select
+
 from entities.user_module_progress import UserModuleProgress
-from .models import UserModuleProgressCreate, UserModuleProgressRead
 from entities.users import User
 
+from .models import UserModuleProgressCreate, UserModuleProgressRead
 
 logger = logging.getLogger(__name__)
 
