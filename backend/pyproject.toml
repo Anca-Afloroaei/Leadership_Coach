@@ -3,18 +3,42 @@ name = "backend"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.12,<3.13"
 dependencies = [
     "bcrypt>=4.3.0",
     "fastapi>=0.116.1",
+    "starlette>=0.47.1",
     "jose>=1.0.0",
     "passlib>=1.7.4",
     "psycopg2-binary>=2.9.10",
     "pydantic-ai>=0.4.3",
-    "pydantic[email]>=2.11.7",
     "python-dotenv>=1.1.1",
     "python-jose>=3.5.0",
     "sqlmodel>=0.0.24",
     "supabase>=2.17.0",
     "uvicorn>=0.35.0",
+    "click>=8.0",
+    "h11>=0.14",
+    "openai>=1.0.0",
+    "markdown>=3.6",
+    "pydantic[email]>=2.11.7",
+    "weasyprint>=66.0",
+    "isort>=7.0.0",
+    "pango>=0.0.1",
+    "pydyf>=0.11.0",
+    "cffi>=2.0.0",
+    "tinyhtml5>=2.0.0",
+    "tinycss2>=1.4.0",
+    "cssselect2>=0.8.0",
+    "pillow>=12.0.0",
+    "fonttools>=4.60.1",
+    "pyphen>=0.17.2",
 ]
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+combine_as_imports = true
+line_length = 79
+
