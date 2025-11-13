@@ -1,0 +1,3 @@
+export const DEFAULT_QUESTIONNAIRE_ID =
+  process.env.NEXT_PUBLIC_QUESTIONNAIRE_ID || '0f9ca597d16a466ba0ce51941a87fe0e';
+
