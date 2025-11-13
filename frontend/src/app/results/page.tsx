@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { AuthGuard } from '@/components/AuthGuard';
+import { fetchResults } from '@/lib/api/results';
 
 // Hardcoded questionnaire ID for now
 const QUESTIONNAIRE_ID = '0f9ca597d16a466ba0ce51941a87fe0e'; // Sample Questionnaire
@@ -9,6 +10,8 @@ const QUESTIONNAIRE_ID = '0f9ca597d16a466ba0ce51941a87fe0e'; // Sample Questionn
 export default function QuestionnairePage() {
     return (
         <AuthGuard>
+            {/* Load the results from the API */}
+            
             <div className="flex flex-col items-center justify-center min-h-screen bg-background"></div>
             <h1 className="text-2xl text-foreground font-bold mb-4">Questionnaire Results</h1>
             <p className="text-foreground mb-4">This page will display results for the questionnaire with ID: {QUESTIONNAIRE_ID}</p>
