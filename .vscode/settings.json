@@ -1,6 +1,6 @@
 {
-  "python.defaultInterpreterPath": "${workspaceFolder}/backend/.venv/bin/python",
-  "python.analysis.extraPaths": ["${workspaceFolder}/backend/.venv/lib/python3.13/site-packages"],
+  "python.defaultInterpreterPath": "/opt/homebrew/opt/python@3.12/bin/python3.12",
+  "python.analysis.extraPaths": ["${workspaceFolder}/backend/.venv/lib/python3.12/site-packages"],
   "files.autoSave": "afterDelay",
   "files.autoSaveDelay": 1000,
   "terminal.integrated.cwd": "${workspaceFolder}",
@@ -15,7 +15,12 @@
   "editor.formatOnSave": true,
 
   // Set Black line length here
-  "black-formatter.args": ["--line-length", "79"]
+  "black-formatter.args": [
+    "--line-length",
+    "79"
+  ],
+  "python-envs.defaultEnvManager": "ms-python.python:system",
+  "python-envs.pythonProjects": []
 
 }
 
