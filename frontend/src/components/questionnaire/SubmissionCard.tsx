@@ -2,7 +2,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { useQuestionnaire } from "@/contexts/QuestionnaireContext";
 import { updateUserAnswers } from "@/lib/api/user_answers";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { fetchUserAnswersById } from "@/lib/api/user_answers";
 import { useRouter } from "next/navigation";
 import { CheckCircle } from "lucide-react";
 
@@ -12,7 +13,42 @@ export function SubmissionCard() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const answeredQuestions = userResponses.length;
+  // Count only questions that have a selected answer and exist in the current questionnaire
+  const [serverAnsweredCount, setServerAnsweredCount] = useState<number | null>(null);
+  useEffect(() => {
+    let active = true;
+    const run = async () => {
+      if (!userAnswersId) { setServerAnsweredCount(null); return; }
+      try {
+        const rec = await fetchUserAnswersById(userAnswersId);
+        if (!active) return;
+        const answers = rec?.answers && typeof rec.answers === 'object' ? rec.answers as Record<string, string | null> : {};
+
+        const qids = new Set(questions.map(q => q.id));
+        const count = Object.entries(answers).reduce(
+          (acc, [qid, aid]) => acc + (aid !== null && aid && qids.has(qid) ? 1 : 0),
+          0
+        );
+        setServerAnsweredCount(count);
+      } catch {
+        if (active) setServerAnsweredCount(null);
+      }
+    };
+    run();
+    return () => { active = false; };
+  }, [userAnswersId, questions]);
+
+  const clientAnsweredCount = useMemo(() => {
+    const questionIds = new Set(questions.map(q => q.id));
+    const answeredIds = new Set(
+      userResponses
+        .filter(r => r.answer_id && questionIds.has(r.question_id))
+        .map(r => r.question_id)
+    );
+    return answeredIds.size;
+  }, [userResponses, questions]);
+
+  const answeredQuestions = serverAnsweredCount ?? clientAnsweredCount;
   const totalQuestions = questions.length;
   const isComplete = answeredQuestions === totalQuestions;
   const totalScore = userResponses.reduce((sum, response) => sum + response.score_value, 0);
@@ -30,9 +66,9 @@ export function SubmissionCard() {
         return;
       }
       await updateUserAnswers({ id: userAnswersId, completed_at: new Date().toISOString() });
-      
-      // Navigate to a success page or dashboard
-      router.push('/thank-you');
+
+      // Navigate to Thank You with answers_id to enable deep link to results
+      router.push(`/thank-you?answers_id=${encodeURIComponent(userAnswersId)}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to submit questionnaire');
       setIsSubmitting(false);
@@ -64,6 +100,7 @@ export function SubmissionCard() {
           ) : (
             <div className="text-orange-600">
               <p className="font-medium">Please answer all questions before submitting.</p>
+              <p className="text-sm mt-1">You can only submit once all questions have been answered.</p>
               <p className="text-sm mt-1">You have {totalQuestions - answeredQuestions} questions remaining.</p>
             </div>
           )}

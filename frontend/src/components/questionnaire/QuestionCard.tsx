@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { useQuestionnaire } from "@/contexts/QuestionnaireContext";
 import { Question, Answer } from "@/types/questionnaire";
 import { useState, useEffect } from "react";
+import { set } from "react-hook-form";
 
 interface QuestionCardProps {
   question: Question;
@@ -15,7 +16,7 @@ interface QuestionCardProps {
 
 export function QuestionCard({ question, answers, questionNumber, totalQuestions }: QuestionCardProps) {
   const { goToNext, goToPrevious, saveAnswer, getResponseForQuestion } = useQuestionnaire();
-  const [selectedAnswer, setSelectedAnswer] = useState<string>("");
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   
   // Get existing response if user navigated back
   useEffect(() => {
@@ -25,17 +26,16 @@ export function QuestionCard({ question, answers, questionNumber, totalQuestions
     }
   }, [question.id, getResponseForQuestion]);
 
-  const handleAnswerSelect = (answerId: string) => {
+  const handleAnswerSelect = (answerId: string | null) => {
     setSelectedAnswer(answerId);
     saveAnswer(question.id, answerId);
   };
 
   const handleNext = () => {
-  if (!selectedAnswer) return;
-  // Ensure backend is patched every time user moves forward
-  // Use flush to bypass debounce when navigating
-  saveAnswer(question.id, selectedAnswer, { flush: true });
-  goToNext();
+    // Always flush the current answer before moving to next
+    saveAnswer(question.id, selectedAnswer, { flush: true });
+    goToNext();
+    setSelectedAnswer(null); // Reset selection for next question
   };
 
   return (
@@ -81,7 +81,7 @@ export function QuestionCard({ question, answers, questionNumber, totalQuestions
         </span>
         <Button 
           onClick={handleNext}
-          disabled={!selectedAnswer}
+          // disabled={!selectedAnswer}
         >
           Next
         </Button>
