@@ -1,16 +1,18 @@
 import logging
+
 from fastapi import APIRouter, Depends, status
 from sqlmodel import Session
+
 from database.core import get_session
-from entities.users import User
 from entities.leadership_modules import LeadershipModule
+from entities.users import User
+
 from .models import LeadershipModuleCreate, LeadershipModuleRead
 from .service import (
     create_module as service_create_module,
+    delete_module as service_delete_module,
     get_module_by_id as service_get_module_by_id,
-    delete_module as service_delete_module
 )
-
 
 logger = logging.getLogger(__name__)
 
