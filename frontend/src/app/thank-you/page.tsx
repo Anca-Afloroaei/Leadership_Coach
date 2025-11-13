@@ -1,8 +1,15 @@
+"use client";
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { CheckCircle } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { useMemo } from 'react';
 
 export default function ThankYouPage() {
+  const searchParams = useSearchParams();
+  const answersId = useMemo(() => searchParams.get('answers_id') || '', [searchParams]);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
       <div className="max-w-md text-center space-y-6">
@@ -21,8 +28,17 @@ export default function ThankYouPage() {
         
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            You'll receive your results and recommended leadership modules shortly.
+            You can now view your results and recommended leadership modules.
           </p>
+          {answersId && (
+            <div className="pt-2">
+              <Link href={`/results/${encodeURIComponent(answersId)}`}>
+                <Button variant="default" size="lg">
+                  View Your Results
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
         
         <div className="pt-4">
