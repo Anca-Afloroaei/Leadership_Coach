@@ -20,7 +20,14 @@ export interface UserAnswersSubmission {
 
 export interface UserAnswersUpdate{
     id: string;
-    answers?: Record<string, string>;
+    answers?: Record<string, string | null>; // optional
     completed_at?: string; // optional
 }
 
+
+export interface CompletedAnswersSummary {
+    id: string;
+    questionnaire_id: string;
+    questionnaire_title: string;
+    completed_at: string;
+}

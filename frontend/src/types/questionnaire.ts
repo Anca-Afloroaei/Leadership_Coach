@@ -31,7 +31,7 @@ export interface Answer {
 
 export interface UserResponse {
   question_id: string;
-  answer_id: string;
+  answer_id: string | null;
   score_value: number;
 }
 
