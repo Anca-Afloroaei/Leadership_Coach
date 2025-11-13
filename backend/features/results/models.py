@@ -1,9 +1,7 @@
-from pydantic import BaseModel, ConfigDict
-from typing import Optional
 from datetime import datetime
+from typing import Optional
 
-
-
+from pydantic import BaseModel, ConfigDict
 
 
 class UserResultRead(BaseModel):
@@ -11,6 +9,6 @@ class UserResultRead(BaseModel):
     user_answers_record_id: str
     user_id: str
     questionnaire_id: str
-    results: dict[str, str]  # Mapping of question IDs to answer IDs provided by the user
+    # Mapping of competency -> percentage (0-100)
+    results: dict[str, float]
     completed_at: Optional[datetime] = None  # Optional completion date if the questionnaire is completed
-
