@@ -1,10 +1,13 @@
 import logging
+
 from fastapi import HTTPException, status
-from sqlmodel import Session, select
 from sqlalchemy.exc import IntegrityError
+from sqlmodel import Session, select
+
 from entities.users import User
-from .models import UserCreate, UserRead, UserUpdate, UserDelete, UserLogin
 from utils.security import get_password_hash, verify_password
+
+from .models import UserCreate, UserDelete, UserLogin, UserRead, UserUpdate
 
 logger = logging.getLogger(__name__)
 

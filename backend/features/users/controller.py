@@ -1,18 +1,18 @@
 import logging
+
 from fastapi import APIRouter, Depends, status
 from sqlmodel import Session
+
 from database.core import get_session
 from entities.users import User
-from .models import UserCreate, UserRead, UserUpdate, UserDelete, UserLogin
-from .service import (
-    # create_user as service_create_user,
-    # auth_user as service_auth_user,
-    update_user as service_update_user,
-    delete_user as service_delete_user,
-    read_current_user as service_read_current_user
-)
-from features.auth.service import get_current_user 
+from features.auth.service import get_current_user
 
+from .models import UserCreate, UserDelete, UserLogin, UserRead, UserUpdate
+from .service import (  # create_user as service_create_user,; auth_user as service_auth_user,
+    delete_user as service_delete_user,
+    read_current_user as service_read_current_user,
+    update_user as service_update_user,
+)
 
 logger = logging.getLogger(__name__)
 
