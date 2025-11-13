@@ -1,23 +1,28 @@
 import logging
 import os
+from contextlib import asynccontextmanager
+
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
-from database.core import create_db_and_tables, get_session, check_db_connection
-from routers import register_routers
+
+from database.core import (
+    check_db_connection,
+    create_db_and_tables,
+    get_session,
+)
 from entities import (
-    User,
-    LeadershipModule,
-    UserModuleProgress,
+    Answer,
     DevelopmentPlan,
     LeadershipAssessment,
+    LeadershipModule,
     Question,
-    Answer, 
     Questionnaire,
+    User,
     UserAnswer,
+    UserModuleProgress,
 )
-
+from routers import register_routers
 
 load_dotenv()
 
