@@ -1,8 +1,9 @@
-from sqlmodel import Field, SQLModel
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from datetime import datetime, timezone
-from uuid import uuid4
 from typing import Optional
+from uuid import uuid4
+
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
+from sqlmodel import Field, SQLModel
 
 
 class Answer(SQLModel, table=True):

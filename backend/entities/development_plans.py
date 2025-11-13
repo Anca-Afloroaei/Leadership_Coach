@@ -1,7 +1,8 @@
-from uuid import uuid4
-from sqlmodel import SQLModel, Field
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from datetime import datetime, timezone
+from uuid import uuid4
+
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
+from sqlmodel import Field, SQLModel
 
 
 class DevelopmentPlan(SQLModel, table=True):
@@ -15,9 +16,21 @@ class DevelopmentPlan(SQLModel, table=True):
     user_id: str = Field(
         sa_column=Column(String, ForeignKey("users.id"), nullable=False)
     )
+    user_answers_record_id: str | None = Field(
+        default=None,
+        sa_column=Column(
+            String,
+            ForeignKey("user_answers.id"),
+            nullable=True,
+            index=True,
+        ),
+    )
     goal: str = Field(sa_column=Column(String, nullable=False))
-    description: str = Field(
-        sa_column=Column(String, nullable=False)
+    # description: str = Field(
+    #     sa_column=Column(String, nullable=False)
+    description: str | None = Field(
+        default=None,
+        sa_column=Column(String, nullable=True)
     )  # Optional details/description of the goal
     start_date: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc),
@@ -53,6 +66,10 @@ class DevelopmentPlan(SQLModel, table=True):
     action_items: str = Field(
         sa_column=Column(String, nullable=False)
     )  # Action items to be completed
+    plan_markdown: str = Field(
+        default="",
+        sa_column=Column(Text, nullable=False, default=""),
+    )
     target_date: datetime = Field(
         DateTime(timezone=True), nullable=False
     )  # Target date for the action items

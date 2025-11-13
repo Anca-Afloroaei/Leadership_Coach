@@ -1,9 +1,10 @@
-from sqlmodel import Field, SQLModel
-from sqlalchemy import Boolean, Column, String, DateTime
-from sqlalchemy.dialects.postgresql import ARRAY
 from datetime import datetime, timezone
-from uuid import uuid4
 from typing import Optional
+from uuid import uuid4
+
+from sqlalchemy import Boolean, Column, DateTime, String
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlmodel import Field, SQLModel
 
 
 class Questionnaire(SQLModel, table=True):

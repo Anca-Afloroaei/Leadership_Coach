@@ -1,8 +1,9 @@
-from uuid import uuid4
-from sqlmodel import SQLModel, Field
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from datetime import datetime, timezone
 from typing import Optional
+from uuid import uuid4
+
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
+from sqlmodel import Field, SQLModel
 
 
 class UserModuleProgress(SQLModel, table=True):

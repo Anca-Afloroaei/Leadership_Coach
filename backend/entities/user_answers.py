@@ -1,9 +1,10 @@
-from sqlmodel import Field, SQLModel
-from sqlalchemy import Boolean, Column, ForeignKey, String, DateTime
-from sqlalchemy.dialects.postgresql import JSONB
 from datetime import datetime, timezone
-from uuid import uuid4
 from typing import Optional
+from uuid import uuid4
+
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, String
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlmodel import Field, SQLModel
 
 
 class UserAnswer(SQLModel, table=True):
@@ -31,7 +32,7 @@ class UserAnswer(SQLModel, table=True):
     )
     updated_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc),
-        sa_column=Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc), nullable=False),
+        sa_column=Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False),
     )
     completed_at: Optional[datetime] = Field(
         default=None,

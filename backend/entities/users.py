@@ -1,9 +1,10 @@
-from uuid import uuid4
-from sqlmodel import SQLModel, Field
-from sqlalchemy import Column, Integer, String, DateTime
 from datetime import datetime, timezone
-from features.users.models import Role
+from uuid import uuid4
 
+from sqlalchemy import Column, DateTime, Integer, String
+from sqlmodel import Field, SQLModel
+
+from features.users.models import Role
 
 
 class User(SQLModel, table=True):
