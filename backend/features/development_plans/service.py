@@ -159,7 +159,9 @@ def generate_development_plan_from_ai(
         "- The link must be the canonical page hosted by the original publisher/creator/provider; if unavailable, prefer well-known distributors (e.g., amazon.com for books, coursera.org/edx.org for courses, youtube.com/ted.com for videos) — never a search results page.\n"
         "- If a credible url cannot be found, output the item without a link: '- {Type}: Title — description'.\n"
         "- Do NOT add an extra '-' inside the link text (no '[- Title]').\n"
-        "- Provide at most 6 high-quality resources."
+        "- Provide at most 6 high-quality resources.\n"
+        "- Do NOT add any follow-up questions or sugestions after the JSON output. Refrain from any additional commentary whatsoever.\n"
+        "- At the end of the plan, add a motivaing closing statement to encourage the user to follow through on their development plan. Make it concise and impactful.\n"
     )
 
     user_context = {
