@@ -1,11 +1,16 @@
 from passlib.context import CryptContext
+from passlib.exc import UnknownHashError
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["bcrypt", "pbkdf2_sha256"], deprecated="auto")
 
 
 def verify_password(plain: str, hashed: str) -> bool:
     """Verify a plaintext password against its hash."""
-    return pwd_context.verify(plain, hashed)
+    try:
+        return pwd_context.verify(plain, hashed)
+    except UnknownHashError:
+        # Hash produced by an unsupported algorithm; treat as non-match
+        return False
 
 
 def get_password_hash(password: str) -> str:
