@@ -1,10 +1,9 @@
-from features.questions.service import list_questions
-from features.questionnaires.service import create_questionnaire
-from database.core import get_session
 from fastapi import Depends
+
+from database.core import get_session
 from features.questionnaires.models import QuestionnaireCreate
-
-
+from features.questionnaires.service import create_questionnaire
+from features.questions.service import list_questions
 
 if __name__ == "__main__":
 
