@@ -1,17 +1,19 @@
 import logging
+
 from fastapi import APIRouter, Depends, status
 from sqlmodel import Session, select
+
 from database.core import get_session
 from entities.questionnaires import Questionnaire
+
 from .models import QuestionnaireCreate, QuestionnaireRead, QuestionnaireUpdate
 from .service import (
     create_questionnaire as service_create_questionnaire,
-    get_questionnaire_by_id as service_get_questionnaire_by_id,
-    update_questionnaire as service_update_questionnaire,
     delete_questionnaire as service_delete_questionnaire,
-    list_questionnaires as service_list_questionnaires
+    get_questionnaire_by_id as service_get_questionnaire_by_id,
+    list_questionnaires as service_list_questionnaires,
+    update_questionnaire as service_update_questionnaire,
 )
-
 
 logger = logging.getLogger(__name__)
 
