@@ -6,3 +6,4 @@
 *.log
 next-env.d.ts
 .DS_Store
+backend/dev_LLM_calls/*
