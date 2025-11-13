@@ -1,7 +1,7 @@
-from pydantic import BaseModel, ConfigDict
-from typing import Optional
 from datetime import datetime
+from typing import Optional
 
+from pydantic import BaseModel, ConfigDict
 
 
 class UserAnswersRecordCreate(BaseModel):
@@ -26,5 +26,13 @@ class UserAnswersRecordUpdate(BaseModel):
     answers: Optional[dict[str, str]] = None  # Mapping of question IDs to answer IDs provided by the user
     completed_at: Optional[datetime] = None  # Optional completion date if the questionnaire is completed
 
+
+
+class CompletedAnswersSummaryRead(BaseModel):
+    """Summary view for completed results in the navbar dropdown."""
+    id: str
+    questionnaire_id: str
+    questionnaire_title: str
+    completed_at: datetime
 
 

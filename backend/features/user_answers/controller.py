@@ -1,25 +1,28 @@
 import logging
+
 from fastapi import APIRouter, Depends, status
 from sqlmodel import Session
+
 from database.core import get_session
-from entities.users import User
 from entities.user_answers import UserAnswer
+from entities.users import User
+from features.auth.service import get_current_user
+
 from .models import (
+    CompletedAnswersSummaryRead,
     UserAnswersRecordCreate,
     UserAnswersRecordRead,
     UserAnswersRecordUpdate,
 )
-from .service import (
+from .service import (  # get_user_answers_by_questionnaire as service_get_user_answers_by_questionnaire,; get_user_answers_by_user as service_get_user_answers_by_user,
     create_user_answers_record as service_create_user_answers_record,
-    get_user_answers_by_record_id as service_get_user_answers_by_record_id,
-    update_user_answers_record as service_update_user_answers_record,
-    get_recent_user_answers as service_get_recent_user_answers,
-    # get_user_answers_by_questionnaire as service_get_user_answers_by_questionnaire,
-    # get_user_answers_by_user as service_get_user_answers_by_user,
     delete_user_answers_record as service_delete_user_answers_record,
+    get_latest_completed_user_answers as service_get_latest_completed_user_answers,
+    get_recent_user_answers as service_get_recent_user_answers,
+    get_user_answers_by_record_id as service_get_user_answers_by_record_id,
+    list_completed_user_answers as service_list_completed_user_answers,
+    update_user_answers_record as service_update_user_answers_record,
 )
-from features.auth.service import get_current_user
-
 
 logger = logging.getLogger(__name__)
 
@@ -44,22 +47,7 @@ def create_user_answers_record(
     return service_create_user_answers_record(answer, current_user, session)
 
 
-@router.get(
-    "/{answers_record_id}",
-    response_model=UserAnswersRecordRead,
-    summary="Get User Answers Record by ID",
-)
-def get_user_answers_by_record_id(
-    user_answers_record_id: str,
-    current_user: User = Depends(get_current_user),
-    session: Session = Depends(get_session),
-) -> UserAnswersRecordRead:
-    """
-    Retrieve a user answers record by its ID.
-    """
-    return service_get_user_answers_by_record_id(
-        user_answers_record_id, current_user, session
-    )
+# Note: Keep parameterized routes after fixed-prefix routes to avoid conflicts
 
 
 @router.patch(
@@ -99,6 +87,41 @@ def get_recent_user_answers(
     )
 
 
+@router.get(
+    "/latest_completed/{questionnaire_id}",
+    response_model=UserAnswersRecordRead,
+    summary="Get latest completed User Answers for a questionnaire",
+)
+def get_latest_completed_user_answers(
+    questionnaire_id: str,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+) -> UserAnswersRecordRead:
+    return service_get_latest_completed_user_answers(
+        questionnaire_id, current_user, session
+    )
+
+@router.get(
+    "/completed",
+    response_model=list[CompletedAnswersSummaryRead],
+    summary="List completed User Answers (optionally filter by questionnaire)",
+)
+def list_completed_user_answers(
+    questionnaire_id: str | None = None,
+    limit: int | None = None,
+    offset: int | None = None,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+) -> list[CompletedAnswersSummaryRead]:
+    return service_list_completed_user_answers(
+        current_user=current_user,
+        session=session,
+        questionnaire_id=questionnaire_id,
+        limit=limit,
+        offset=offset,
+    )
+
+
 # @router.get("/questionnaire/{questionnaire_id}", response_model=list[UserAnswersRecordRead], summary="Get User Answers by Questionnaire")
 # def get_user_answers_by_questionnaire(
 #     questionnaire_id: str, session: Session = Depends(get_session)
@@ -123,5 +146,22 @@ def delete_user_answers_record(
     Delete a user answers record by its ID.
     """
     return service_delete_user_answers_record(
+        user_answers_record_id, current_user, session
+    )
+
+@router.get(
+    "/{user_answers_record_id}",
+    response_model=UserAnswersRecordRead,
+    summary="Get User Answers Record by ID",
+)
+def get_user_answers_by_record_id(
+    user_answers_record_id: str,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+) -> UserAnswersRecordRead:
+    """
+    Retrieve a user answers record by its ID.
+    """
+    return service_get_user_answers_by_record_id(
         user_answers_record_id, current_user, session
     )

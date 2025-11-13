@@ -1,16 +1,20 @@
 import logging
 from datetime import datetime, timedelta, timezone
+
 from fastapi import HTTPException, status
-from sqlmodel import Session, select
 from sqlalchemy.exc import IntegrityError
-from entities.users import User
+from sqlmodel import Session, select
+
+from entities.questionnaires import Questionnaire
 from entities.user_answers import UserAnswer
+from entities.users import User
+
 from .models import (
+    CompletedAnswersSummaryRead,
     UserAnswersRecordCreate,
     UserAnswersRecordRead,
     UserAnswersRecordUpdate,
 )
-
 
 logger = logging.getLogger(__name__)
 
@@ -116,7 +120,7 @@ def update_user_answers_record(
     for key, value in update_data.items():
         setattr(user_answers_record, key, value)
 
-    session.add(user_answers_record)
+    # session.add(user_answers_record)
     session.commit()
     session.refresh(user_answers_record)
     logger.info(f"User Answers Record updated: {user_answers_record.id}")
@@ -177,3 +181,73 @@ def get_recent_user_answers(
     if not record:
         raise HTTPException(status_code=404, detail="No recent user answers found")
     return UserAnswersRecordRead.model_validate(record)
+
+
+def get_latest_completed_user_answers(
+    questionnaire_id: str,
+    current_user: User,
+    session: Session,
+) -> UserAnswersRecordRead:
+    """
+    Fetch the latest completed (completed_at is not null) User Answers Record
+    for the current user and given questionnaire. Returns 404 if none exist.
+    """
+    stmt = (
+        select(UserAnswer)
+        .where(
+            (UserAnswer.user_id == current_user.id)
+            & (UserAnswer.questionnaire_id == questionnaire_id)
+            & (UserAnswer.completed_at.isnot(None))
+        )
+        .order_by(UserAnswer.completed_at.desc())
+    )
+    record = session.exec(stmt).first()
+    if not record:
+        raise HTTPException(status_code=404, detail="No completed user answers found")
+    return UserAnswersRecordRead.model_validate(record)
+
+
+def list_completed_user_answers(
+    current_user: User,
+    session: Session,
+    questionnaire_id: str | None = None,
+    limit: int | None = None,
+    offset: int | None = None,
+) -> list[CompletedAnswersSummaryRead]:
+    """Return all completed user answers for the current user, newest first.
+
+    Optionally filter by questionnaire_id and apply limit/offset for pagination.
+    """
+    stmt = (
+        select(UserAnswer, Questionnaire)
+        .join(Questionnaire, Questionnaire.id == UserAnswer.questionnaire_id)
+        .where(
+            (UserAnswer.user_id == current_user.id)
+            & (UserAnswer.completed_at.isnot(None))
+        )
+        .order_by(UserAnswer.completed_at.desc())
+    )
+    if questionnaire_id:
+        stmt = stmt.where(UserAnswer.questionnaire_id == questionnaire_id)
+    if offset:
+        stmt = stmt.offset(offset)
+    if limit:
+        stmt = stmt.limit(limit)
+
+    rows = session.exec(stmt).all()
+    results: list[CompletedAnswersSummaryRead] = []
+    for ua, q in rows:
+        # Safeguard if title missing
+        title = getattr(q, 'title', '') or q.id
+        if ua.completed_at is None:
+            # Should not happen due to filter, but guard anyway
+            continue
+        results.append(
+            CompletedAnswersSummaryRead(
+                id=ua.id,
+                questionnaire_id=ua.questionnaire_id,
+                questionnaire_title=title,
+                completed_at=ua.completed_at,
+            )
+        )
+    return results
