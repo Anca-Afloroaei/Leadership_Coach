@@ -1,17 +1,19 @@
 import logging
+
 from fastapi import APIRouter, Depends, status
 from sqlmodel import Session
+
 from database.core import get_session
 from entities.users import User
+
 from .models import AnswerCreate, AnswerRead, AnswerUpdate
 from .service import (
     create_answer as service_create_answer,
-    get_answer_by_id as service_get_answer_by_id,
-    update_answer as service_update_answer,
     delete_answer as service_delete_answer,
-    list_answers as service_list_answers
+    get_answer_by_id as service_get_answer_by_id,
+    list_answers as service_list_answers,
+    update_answer as service_update_answer,
 )
-
 
 logger = logging.getLogger(__name__)
 
