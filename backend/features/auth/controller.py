@@ -16,20 +16,21 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session
+
 from config import settings
 from database.core import get_session
 from entities import User
+
 from ..users.models import UserCreate
 from .service import (
-    create_user_account,
     authenticate_user,
     create_session_token,
-    refresh_user_session,
+    create_user_account,
     get_current_user,
+    get_token_from_cookie_or_header,
+    refresh_user_session,
     validate_session_status,
-    get_token_from_cookie_or_header
 )
-
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
