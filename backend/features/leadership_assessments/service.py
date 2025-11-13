@@ -1,10 +1,13 @@
 import logging
+
 from fastapi import HTTPException
-from sqlmodel import Session, select
 from sqlalchemy.exc import IntegrityError
+from sqlmodel import Session, select
+
 from entities.leadership_assessments import LeadershipAssessment
-from .models import LeadershipAssessmentCreate, LeadershipAssessmentRead
 from entities.users import User
+
+from .models import LeadershipAssessmentCreate, LeadershipAssessmentRead
 
 logger = logging.getLogger(__name__)
 
