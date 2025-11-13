@@ -25,7 +25,7 @@ interface QuestionnaireContextType {
   // Response management
   recordResponse: (questionId: string, answerId: string, scoreValue: number) => void;
   getResponseForQuestion: (questionId: string) => UserResponse | undefined;
-  saveAnswer: (questionId: string, answerId: string, options?: { flush?: boolean }) => void;
+  saveAnswer: (questionId: string, answerId: string | null, options?: { flush?: boolean }) => void;
   hydrateAnswers: (answers: Record<string, string>) => void;
 
   // State setters
@@ -68,26 +68,34 @@ export function QuestionnaireProvider({ children }: { children: ReactNode }) {
   }, [questions.length]);
 
   const recordResponse = useCallback((questionId: string, answerId: string, scoreValue: number) => {
+    let didChange = false;
     setUserResponses((prev) => {
       const existingIndex = prev.findIndex((r) => r.question_id === questionId);
+      const existing = existingIndex >= 0 ? prev[existingIndex] : undefined;
       const newResponse: UserResponse = { question_id: questionId, answer_id: answerId, score_value: scoreValue };
 
       if (existingIndex >= 0) {
-        // Update existing response
+        // Update existing response only if changed
+        if (
+          existing?.answer_id === newResponse.answer_id &&
+          existing?.score_value === newResponse.score_value
+        ) {
+          return prev; // no change
+        }
+        didChange = true;
         const updated = [...prev];
         updated[existingIndex] = newResponse;
         return updated;
       } else {
-        // Add new response
+        didChange = true;
         return [...prev, newResponse];
       }
     });
-    // Keep recordResponse as a direct call or migrate to saveAnswer if needed
-    if (userAnswersId) {
-      updateUserAnswers({ id: userAnswersId, answers: { [questionId]: answerId } }).catch(() => {
-        // Handle error silently or add error handling logic here if needed
-      });
-    }
+    // Avoid network call if nothing actually changed
+    if (!didChange || !userAnswersId) return;
+    updateUserAnswers({ id: userAnswersId, answers: { [questionId]: answerId } }).catch(() => {
+      // Handle error silently or add error handling logic here if needed
+    });
   }, [userAnswersId]);
 
   const getResponseForQuestion = useCallback((questionId: string) => {
@@ -95,15 +103,20 @@ export function QuestionnaireProvider({ children }: { children: ReactNode }) {
   }, [userResponses]);
 
   // Save answer with score_value defaulting to 0, and update user answers if userAnswersId is set
-  const saveAnswer = useCallback(async (questionId: string, answerId: string, options?: { flush?: boolean }) => {
-    // Update local state only if changed to avoid unnecessary re-renders
+  const saveAnswer = useCallback(async (questionId: string, answerId: string | null, options?: { flush?: boolean }) => {
+    // Track whether local state actually changed
+    let didChange = false;
     setUserResponses((prev) => {
       const existingIndex = prev.findIndex((r) => r.question_id === questionId);
       const existing = existingIndex >= 0 ? prev[existingIndex] : undefined;
-      if (existing && existing.answer_id === answerId) {
-        return prev; // no change
-      }
       const newResponse: UserResponse = { question_id: questionId, answer_id: answerId, score_value: 0 };
+
+      // No local change → keep state as-is
+      if (existing && existing.answer_id === answerId) {
+        return prev;
+      }
+
+      didChange = true;
       if (existingIndex >= 0) {
         const updated = [...prev];
         updated[existingIndex] = newResponse;
@@ -116,9 +129,6 @@ export function QuestionnaireProvider({ children }: { children: ReactNode }) {
 
     // Debounced server update to prevent duplicates
     const timers = debounceTimersRef.current;
-    if (timers[questionId]) {
-      clearTimeout(timers[questionId]);
-    }
 
     const send = () => {
       updateUserAnswers({ id: userAnswersId, answers: { [questionId]: answerId } })
@@ -128,14 +138,30 @@ export function QuestionnaireProvider({ children }: { children: ReactNode }) {
     };
 
     if (options?.flush) {
+      // On flush, if there is a pending timer, send now and clear it
+      if (timers[questionId]) {
+        clearTimeout(timers[questionId]);
+        delete timers[questionId];
+        send();
+        return;
+      }
+      // If no pending timer, only send if something actually changed in this call
+      if (didChange) {
+        send();
+      }
+      return;
+    }
+
+    // Non-flush: only schedule if there was a change
+    if (!didChange) return;
+
+    if (timers[questionId]) {
+      clearTimeout(timers[questionId]);
+    }
+    timers[questionId] = setTimeout(() => {
       send();
       delete timers[questionId];
-    } else {
-      timers[questionId] = setTimeout(() => {
-        send();
-        delete timers[questionId];
-      }, 300);
-    }
+    }, 300);
   }, [userAnswersId]);
 
   // Hydrate existing answers from a map without triggering network calls
