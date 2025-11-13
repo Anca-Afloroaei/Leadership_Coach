@@ -1,10 +1,12 @@
 import logging
-from fastapi import HTTPException, status
-from sqlmodel import Session, select
-from sqlalchemy.exc import IntegrityError
-from entities.questions import Question
-from .models import QuestionCreate, QuestionRead, QuestionUpdate
 
+from fastapi import HTTPException, status
+from sqlalchemy.exc import IntegrityError
+from sqlmodel import Session, select
+
+from entities.questions import Question
+
+from .models import QuestionCreate, QuestionRead, QuestionUpdate
 
 logger = logging.getLogger(__name__)
 
