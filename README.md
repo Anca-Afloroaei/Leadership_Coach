@@ -127,7 +127,7 @@ The application guides users through a comprehensive leadership assessment quest
        ▼                        ▼
 ┌─────────────┐         ┌──────────────┐
 │ SessionCtx  │         │  OpenAI API  │
-│ ThemeCtx    │         │   GPT-4 +    │
+│ ThemeCtx    │         │   GPT-5-MINI +    │
 │ RouterCtx   │         │  Web Search  │
 └─────────────┘         └──────────────┘
 ```
