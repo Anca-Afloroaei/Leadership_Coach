@@ -200,12 +200,25 @@ CRITICAL: MARKDOWN FORMATTING REQUIREMENTS (for plan_markdown):
 
 ### 1) Strategic Vision & Thinking (Days 1-30)
 
-- **Objective:** Build a 1-page Strategic Vision and test two strategic experiments
-- **Actions:**
+**Objective:** 
+  - Build a 1-page Strategic Vision and test two strategic experiments
+
+**Actions:**
   - Complete selected HBS Online Business Strategy modules
   - Map value proposition
   - Write 1-page brief
-- **Measurement:** Final 1-page Vision presented Day 30
+
+**Measurement:** 
+Final 1-page Vision presented Day 30
+
+## Risks & Mitigations
+
+- **Risk:** No time to complete coursework
+  - **Mitigation:** Prioritize microlearning (1 module/week) and integrate learning into client work
+- **Risk:** Low adherence to daily resilience routine
+  - **Mitigation:** Pair the routine with an existing habit (e.g., morning coffee) and use app reminders
+- **Risk:** Experiments fail to produce measurable data
+  - **Mitigation:** Predefine success/failure criteria and keep tests small and time-boxed
 ```
 
 RESOURCES SECTION REQUIREMENTS:
