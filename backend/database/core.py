@@ -19,7 +19,8 @@ engine = create_engine(
     # connect_args={"sslmode": "require"},
     connect_args=connect_args,
     echo=False,
-    pool_pre_ping=True,
+    pool_pre_ping=True,  # Validate connections before using them
+    pool_recycle=3600,  # Recycle connections after 1 hour (before they timeout)
     pool_size=20,
     max_overflow=20,
 )
