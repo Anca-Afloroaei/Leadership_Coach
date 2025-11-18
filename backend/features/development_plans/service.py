@@ -137,32 +137,127 @@ def generate_development_plan_from_ai(
     client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
     # Build structured system/user prompt
-    system_prompt = (
-        "You are a Top Leadership Development Expert and coach. Create a practical, time-bound "
-        "leadership development plan that is specific, measurable, and aligned to the user's "
-        "focus areas, role, industry, and experience level. Include a concrete timeline with "
-        "measurable milestones and concrete, actionable steps they need to take. Create several "
-        "progressive modules. \n"
-        "Invoke web search to find authoritative resources (books, courses, articles, videos, podcasts, tools). "
-        "Only include high-quality, relevant resources from reputable sources. **DO NOT HALLUCINATE**"
-        # "Provide numerous resources they can access and learn from. "
-        "Respond ONLY with valid JSON matching the schema. For the plan_markdown, format a readable "
-        "plan with clear sections and bullet lists.\n\n"
-        "RESOURCES REQUIREMENTS (plan_markdown):\n"
-        "- Include a 'Resources' section as a bulleted list.\n"
-        "- Use this exact pattern per item: '- {Type}: [Title](https://url) — one sentence on what it is and why it's relevant'.\n"
-        "- {Type} must be one of: Book, Course, Workshop, Webinar, Article, Podcast, Video, Toolkit.\n"
-        "- The link must be to an authoritative/official source (publisher, creator, provider). Avoid homepages and SEO blogs.\n"
-        "- HTTPS only; avoid link shorteners and tracking parameters. Use canonical URLs.\n"
-        "- The URL must be a deep link to the specific resource (path length >= 1), not just the site root.\n"
-        "- Do NOT output search engine links or aggregators (e.g., google.com, bing.com, duckduckgo.com, yahoo.com).\n"
-        "- The link must be the canonical page hosted by the original publisher/creator/provider; if unavailable, prefer well-known distributors (e.g., amazon.com for books, coursera.org/edx.org for courses, youtube.com/ted.com for videos) — never a search results page.\n"
-        "- If a credible url cannot be found, output the item without a link: '- {Type}: Title — description'.\n"
-        "- Do NOT add an extra '-' inside the link text (no '[- Title]').\n"
-        "- Provide at most 6 high-quality resources.\n"
-        "- Do NOT add any follow-up questions or sugestions after the JSON output. Refrain from any additional commentary whatsoever.\n"
-        "- At the end of the plan, add a motivaing closing statement to encourage the user to follow through on their development plan. Make it concise and impactful.\n"
-    )
+    system_prompt = """
+You are a Top Leadership Development Expert and coach. Create a practical, time-bound leadership development plan that is specific, measurable, and aligned to the user's focus areas, role, industry, and experience level. Include a concrete timeline with measurable milestones and concrete, actionable steps they need to take. Create several progressive modules.
+
+Invoke web search to find authoritative resources (books, courses, articles, videos, podcasts, tools). Only include high-quality, relevant resources from reputable sources. **DO NOT HALLUCINATE**
+
+Respond ONLY with valid JSON matching this EXACT schema:
+
+{
+  "goal": string,                    // Concise overarching goal of the plan
+  "description": string,             // Brief description of the plan's purpose and approach
+  "action_items": [string],          // List of concrete action items
+  "next_steps": [string],            // List of immediate next steps
+  "resources": [string],             // List of resources (formatted per rules below)
+  "challenges": [string],            // List of potential challenges
+  "milestones": [{                   // List of milestone objects
+    "title": string,
+    "summary": string,
+    "timeframe": string,
+    "key_actions": [string],
+    "success_metric": string
+  }],
+  "plan_markdown": string            // The full plan in Markdown (formatted per rules below)
+}
+
+CRITICAL: MARKDOWN FORMATTING REQUIREMENTS (for plan_markdown):
+
+1. STRUCTURE:
+   - Use '##' for main section headings (e.g., ## Overview, ## Modules, ## Resources)
+   - Use '###' for subsections (e.g., ### Module 1: Strategic Vision)
+   - Insert a blank line before and after every heading
+   - Insert a blank line between every paragraph
+   - Insert a blank line before and after every bullet list
+
+2. LISTS:
+   - Start bulleted items with '- ' (dash and space)
+   - Each bullet point must be on a separate line
+   - Indent nested bullet points with two spaces ('  - ')
+   - Use bold text for labels in bullets: '- **Label:** description text'
+   - NEVER combine multiple items on one line separated by dashes
+
+3. SPACING:
+   - Separate all sections with blank lines
+   - Never concatenate text items with ' - ' (no inline grouped items)
+   - Every paragraph, heading, and bullet must have a blank line above and below
+
+4. ONE-SHOT EXAMPLE (CORRECT FORMAT):
+```markdown
+## Overview
+
+- **Goal:** Strengthen Vision & Strategic Thinking, Delegation, and Conflict Management
+- **Duration:** 90 days (Day 1 = project start)
+- **Measurement:** 1-page Strategic Vision Brief, delegation transfer of 8 tasks
+
+## Weekly Rhythm (recommended)
+
+- **Monday (30 min):** Review week goals and delegated items
+- **Wednesday (60 min):** Learning block (course module or reading) + immediate application plan
+- **Friday (30 min):** Reflection and quick wins journal
+
+## Modules (progressive)
+
+### 1) Strategic Vision & Thinking (Days 1-30)
+
+- **Objective:** Build a 1-page Strategic Vision and test two strategic experiments
+- **Actions:**
+  - Complete selected HBS Online Business Strategy modules
+  - Map value proposition
+  - Write 1-page brief
+- **Measurement:** Final 1-page Vision presented Day 30
+```
+
+RESOURCES SECTION REQUIREMENTS:
+- Always include a '## Resources' section as a bullet list
+- For each resource, strictly use: '- {Type}: [Title](https://url) — one sentence on what it is and why it's relevant'
+- {Type} one of: Book, Course, Workshop, Webinar, Article, Podcast, Video, Toolkit
+- Only include HTTPS links; avoid link shorteners or tracking params; canonical URLs required
+- Each link must be a direct, deep link (not site root) to the resource from an authoritative source (e.g., publisher/creator/platform)
+- No search engines or aggregator links (e.g., google.com, bing, etc.)
+- If no valid link can be found, include the item without a link: '- {Type}: Title — description'
+- No extra '-' in the link text
+- Provide no more than 6 high-quality resources per plan
+
+FINAL REQUIREMENTS:
+- Do NOT add any follow-up questions or suggestions after the JSON output
+- At the end of the plan_markdown, add a '## Motivating Closing Statement' section with a concise, impactful message
+- Refrain from any additional commentary whatsoever
+- ALL fields in the schema are REQUIRED
+
+Example JSON structure:
+
+{
+  "goal": "Accelerate leadership skills in X, Y, and Z within 90 days",
+  "description": "A practical 90-day plan for...",
+  "action_items": [
+    "Complete module 1 by week 2",
+    "Schedule weekly reflection sessions"
+  ],
+  "next_steps": [
+    "Start Day 1 with baseline assessment",
+    "Share plan with accountability partner"
+  ],
+  "resources": [
+    "Book: [Title](https://url) — description",
+    "Course: [Title](https://url) — description"
+  ],
+  "challenges": [
+    "Time management with existing workload",
+    "Behavioral change inertia"
+  ],
+  "milestones": [
+    {
+      "title": "Module 1 Complete",
+      "summary": "Foundation skills established",
+      "timeframe": "Weeks 1-4",
+      "key_actions": ["Action 1", "Action 2"],
+      "success_metric": "Completed assessment with 80%+ score"
+    }
+  ],
+  "plan_markdown": "## Overview\n\n- **Goal:** ...\n\n[full formatted plan here]"
+}
+"""
 
     user_context = {
         "role": payload.role,
@@ -435,20 +530,208 @@ def _build_plan_pdf_html(
             margin: 24px;
             @bottom-right {{
               content: "Page " counter(page) " of " counter(pages);
-              font-size: 12px;
-              color: #555;
+              font-size: 10px;
+              color: #777;
             }}
           }}
-          body {{ font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; margin: 0; padding: 24px; color: #111; }}
-          h1 {{ margin-bottom: 8px; }}
-          h2 {{ margin-top: 32px; margin-bottom: 12px; }}
-          table {{ border-collapse: collapse; margin-top: 16px; width: 100%; }}
-          th {{ text-align: left; font-weight: 600; padding: 8px 12px; width: 160px; background: #f5f5f5; }}
-          td {{ padding: 8px 12px; border-bottom: 1px solid #e0e0e0; }}
-          .markdown-body {{ margin-top: 32px; line-height: 1.6; }}
-          .markdown-body ul {{ padding-left: 20px; }}
-          .markdown-body a {{ color: #0d47a1; text-decoration: none; }}
-          .markdown-body a:hover {{ text-decoration: underline; }}
+
+          * {{
+            box-sizing: border-box;
+          }}
+
+          body {{
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 24px;
+            color: #111;
+            font-size: 11pt;
+            line-height: 1.6;
+          }}
+
+          /* Header styles */
+          header {{
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #e0e0e0;
+          }}
+
+          header h1 {{
+            margin: 0 0 8px 0;
+            font-size: 24pt;
+            font-weight: 700;
+            color: #000;
+          }}
+
+          header > div {{
+            color: #555;
+            font-size: 10pt;
+            margin-bottom: 12px;
+          }}
+
+          /* Metadata table */
+          table {{
+            border-collapse: collapse;
+            margin-top: 12px;
+            width: 100%;
+            font-size: 10pt;
+          }}
+
+          th {{
+            text-align: left;
+            font-weight: 600;
+            padding: 8px 12px;
+            width: 140px;
+            background: #f8f8f8;
+            border: 1px solid #e0e0e0;
+          }}
+
+          td {{
+            padding: 8px 12px;
+            border: 1px solid #e0e0e0;
+          }}
+
+          /* Markdown content */
+          .markdown-body {{
+            margin-top: 24px;
+          }}
+
+          /* Headings */
+          .markdown-body h1,
+          .markdown-body h2,
+          .markdown-body h3,
+          .markdown-body h4,
+          .markdown-body h5,
+          .markdown-body h6 {{
+            display: block;
+            clear: both;
+            font-weight: 600;
+            line-height: 1.3;
+            margin-top: 24px;
+            margin-bottom: 12px;
+            color: #000;
+          }}
+
+          .markdown-body h1 {{ font-size: 20pt; margin-top: 32px; }}
+          .markdown-body h2 {{ font-size: 16pt; margin-top: 28px; border-bottom: 1px solid #e0e0e0; padding-bottom: 8px; }}
+          .markdown-body h3 {{ font-size: 14pt; margin-top: 24px; }}
+          .markdown-body h4 {{ font-size: 12pt; margin-top: 20px; }}
+          .markdown-body h5 {{ font-size: 11pt; margin-top: 16px; }}
+          .markdown-body h6 {{ font-size: 10pt; margin-top: 16px; color: #555; }}
+
+          /* First heading has less top margin */
+          .markdown-body h1:first-child,
+          .markdown-body h2:first-child,
+          .markdown-body h3:first-child {{
+            margin-top: 0;
+          }}
+
+          /* Paragraphs */
+          .markdown-body p {{
+            display: block;
+            margin: 12px 0;
+            line-height: 1.7;
+          }}
+
+          /* Lists */
+          .markdown-body ul,
+          .markdown-body ol {{
+            display: block;
+            margin: 12px 0;
+            padding-left: 24px;
+          }}
+
+          .markdown-body li {{
+            display: list-item;
+            margin: 6px 0;
+            line-height: 1.6;
+          }}
+
+          .markdown-body ul {{
+            list-style-type: disc;
+          }}
+
+          .markdown-body ul ul {{
+            list-style-type: circle;
+            margin-top: 4px;
+            margin-bottom: 4px;
+          }}
+
+          .markdown-body ul ul ul {{
+            list-style-type: square;
+          }}
+
+          .markdown-body ol {{
+            list-style-type: decimal;
+          }}
+
+          /* Links */
+          .markdown-body a {{
+            color: #0d47a1;
+            text-decoration: none;
+            word-wrap: break-word;
+          }}
+
+          /* Strong and emphasis */
+          .markdown-body strong {{
+            font-weight: 700;
+          }}
+
+          .markdown-body em {{
+            font-style: italic;
+          }}
+
+          /* Code */
+          .markdown-body code {{
+            font-family: 'Courier New', Courier, monospace;
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 9pt;
+          }}
+
+          .markdown-body pre {{
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 12px 0;
+          }}
+
+          .markdown-body pre code {{
+            background: transparent;
+            padding: 0;
+          }}
+
+          /* Blockquotes */
+          .markdown-body blockquote {{
+            margin: 12px 0;
+            padding-left: 16px;
+            border-left: 4px solid #e0e0e0;
+            color: #555;
+          }}
+
+          /* Horizontal rules */
+          .markdown-body hr {{
+            border: none;
+            border-top: 1px solid #e0e0e0;
+            margin: 24px 0;
+          }}
+
+          /* Avoid page breaks inside elements */
+          .markdown-body h1,
+          .markdown-body h2,
+          .markdown-body h3,
+          .markdown-body h4,
+          .markdown-body h5,
+          .markdown-body h6 {{
+            page-break-after: avoid;
+          }}
+
+          .markdown-body ul,
+          .markdown-body ol,
+          .markdown-body p {{
+            page-break-inside: avoid;
+          }}
         </style>
       </head>
       <body>
@@ -461,6 +744,10 @@ def _build_plan_pdf_html(
       </body>
     </html>
     """
+
+
+
+
 
 
 def get_development_plan_pdf_for_user_answers(
