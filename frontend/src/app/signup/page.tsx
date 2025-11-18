@@ -115,9 +115,33 @@ export default function SignupPage() {
       // Use router.push for client-side navigation
       router.push(DEFAULT_PROTECTED_ROUTE)
     } catch (err: unknown) {
-      const error = err as { response?: { data?: { detail?: string } } }
-      const message =
-        error.response?.data?.detail || 'Sign up failed. Please try again.'
+      let message = 'Sign up failed. Please try again.'
+
+      // Handle axios errors
+      if (err && typeof err === 'object' && 'response' in err) {
+        const axiosError = err as any
+        const detail = axiosError.response?.data?.detail
+
+        if (detail) {
+          // If detail is an array of validation errors (FastAPI format)
+          if (Array.isArray(detail)) {
+            message = detail
+              .map((e: any) => {
+                const fieldName = Array.isArray(e.loc) ? e.loc[e.loc.length - 1] : 'field'
+                return `${fieldName}: ${e.msg || e.message || 'Validation error'}`
+              })
+              .join(', ')
+          }
+          // If detail is a validation error object with msg
+          else if (typeof detail === 'object' && 'msg' in detail) {
+            message = detail.msg || 'Validation error'
+          }
+          // If detail is already a string
+          else if (typeof detail === 'string') {
+            message = detail
+          }
+        }
+      }
 
       setFormError(message)
       toast.error(message)
