@@ -4,12 +4,18 @@ import { User, SignupResponse } from "@/types/auth";
 export async function apiSignup(
   first_name: string,
   last_name: string,
+  role: string,
+  industry: string,
+  years: number,
   email: string,
   password: string
 ): Promise<SignupResponse> {
   const resp = await API.post<SignupResponse>("/auth/signup", {
     first_name,
     last_name,
+    role,
+    industry,
+    years,
     email,
     password,
   });
@@ -49,6 +55,9 @@ export async function apiUpdateProfile(
     current_password: string;
     first_name: string;
     last_name: string;
+    role: string;
+    industry: string;
+    years: number;
     email: string;
     password: string;
   }>
