@@ -15,7 +15,7 @@ export async function apiSignup(
     last_name,
     role,
     industry,
-    years,
+    years_experience: years,
     email,
     password,
   });
